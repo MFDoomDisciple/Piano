@@ -14,17 +14,26 @@ pygame.mixer.init()
 print(pygame.mixer.get_init())
 running = True
 
-def gensound(note):
-    # freq = 65.41 * 2**(note/12)
-    freq = 65.41 * 4 * 2**(note/12)
-    max = 2**15
-    buf = np.zeros((sample_rate, 2), dtype=np.int16)
-    sound = pygame.sndarray.make_sound(buf)
-    buf = pygame.sndarray.samples(sound)
-    buf[:, 0] = (0.25 * max * np.sin(2 * np.pi * freq * np.arange(sample_rate) / sample_rate)).astype(np.int16)
-    buf[:, 1] =  (0.25 * max * np.sin(2 * np.pi * freq * np.arange(sample_rate) / sample_rate)).astype(np.int16)
-    return sound
+class Key:
+    def __init__(self, note):
+        # freq = 65.41 * 2**(note/12)
+        freq = 65.41 * 4 * 2**(note/12)
+        max = 2**15 - 1
+        size = sample_rate
+        buf = np.zeros((size, 2), dtype=np.int16)
+        self.sound = pygame.sndarray.make_sound(buf)
+        buf = pygame.sndarray.samples(self.sound)
+        buf[:, 0] = (0.25 * max * np.sin(2 * np.pi * freq * np.arange(size) / sample_rate)).astype(np.int16)
+        buf[:, 1] =  (0.25 * max * np.sin(2 * np.pi * freq * np.arange(size) / sample_rate)).astype(np.int16)
+        self.sound.set_volume(0)
+        self.sound.play(loops = -1)
+    def play(self, play):
+        if play:
+            self.sound.set_volume(1)
+        else:
+            self.sound.set_volume(0)
 
+piano_keys = [Key(i) for i in range(100)]
 
 while running:
     # poll for events
@@ -38,36 +47,21 @@ while running:
 
     # RENDER YOUR GAME HERE
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_z]:
-        gensound(0).play() # c note
-    if keys[pygame.K_x]:
-        gensound(2).play() # d note
-    if keys[pygame.K_c]:
-        gensound(4).play() # e note
-    if keys[pygame.K_v]:
-        gensound(5).play() # f note
-    if keys[pygame.K_b]:
-        gensound(7).play() # g note
-    if keys[pygame.K_n]:
-        gensound(9).play() # a note
-    if keys[pygame.K_m]:
-        gensound(11).play() # b note
-    if keys[pygame.K_COMMA]:
-        gensound(12).play() # c note
-    if keys[pygame.K_PERIOD]:
-        gensound(14).play() # d note
-    if keys[pygame.K_SLASH]:
-        gensound(16).play() # e note
-    if keys[pygame.K_s]:
-        gensound(1).play() # c sharp
-    if keys[pygame.K_d]:
-        gensound(3).play() # d sharp
-    if keys[pygame.K_g]:
-        gensound(6).play() # f sharp
-    if keys[pygame.K_h]:
-        gensound(8).play() # g sharp
-    if keys[pygame.K_j]:
-        gensound(10).play() # a sharp
+    piano_keys[0].play(keys[pygame.K_z]) # c note
+    piano_keys[2].play(keys[pygame.K_x]) # d note
+    piano_keys[4].play(keys[pygame.K_c]) # e note
+    piano_keys[5].play(keys[pygame.K_v]) # f note
+    piano_keys[7].play(keys[pygame.K_b]) # g note
+    piano_keys[9].play(keys[pygame.K_n]) # a note
+    piano_keys[11].play(keys[pygame.K_m]) # b note
+    piano_keys[12].play(keys[pygame.K_COMMA]) # c note
+    piano_keys[14].play(keys[pygame.K_PERIOD]) # d note
+    piano_keys[16].play(keys[pygame.K_SLASH]) # e note
+    piano_keys[1].play(keys[pygame.K_s]) # c sharp
+    piano_keys[3].play(keys[pygame.K_d]) # d sharp
+    piano_keys[6].play(keys[pygame.K_g]) # f sharp
+    piano_keys[8].play(keys[pygame.K_h]) # g sharp
+    piano_keys[10].play(keys[pygame.K_j]) # a sharp
 
     # flip() the display to put your work on screen
     pygame.display.flip()
