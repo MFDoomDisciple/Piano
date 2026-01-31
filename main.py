@@ -15,6 +15,11 @@ pygame.mixer.set_num_channels(50)
 print(pygame.mixer.get_init())
 running = True
 
+c_f = pygame.image.load("c_f.png").convert_alpha()
+d_g_a = pygame.image.load("d_g_a.png").convert_alpha()
+e_b = pygame.image.load("e_b.png").convert_alpha()
+black_key = pygame.image.load("black_key.png").convert_alpha()
+
 class Key:
     def __init__(self, note):
         # freq = 65.41 * 2**(note/12)
@@ -24,8 +29,9 @@ class Key:
         buf = np.zeros((size, 2), dtype=np.int16)
         self.sound = pygame.sndarray.make_sound(buf)
         buf = pygame.sndarray.samples(self.sound)
-        buf[:, 0] = (0.25 * max * np.sin(2 * np.pi * freq * np.arange(size) / sample_rate)).astype(np.int16)
-        buf[:, 1] =  (0.25 * max * np.sin(2 * np.pi * freq * np.arange(size) / sample_rate)).astype(np.int16)
+        volume = 0.25 * max * 65/freq
+        buf[:, 0] = (volume * np.sin(2 * np.pi * freq * np.arange(size) / sample_rate)).astype(np.int16)
+        buf[:, 1] =  (volume * np.sin(2 * np.pi * freq * np.arange(size) / sample_rate)).astype(np.int16)
         self.sound.set_volume(0)
         self.sound.play(loops = -1)
     def play(self, play):
@@ -83,7 +89,17 @@ while running:
     piano_keys[32].play(keys[pygame.K_0]) # g sharp
     piano_keys[33].play(keys[pygame.K_p]) # a note
 
-
+    screen.blit(c_f, (0,50))
+    screen.blit(d_g_a, (40,50))
+    screen.blit(e_b, (80,50))
+    screen.blit(black_key, (30,50))
+    screen.blit(c_f, (120,50))
+    screen.blit(d_g_a, (40,50))
+    screen.blit(d_g_a, (160, 50))
+    screen.blit(e_b, (200,50))
+    screen.blit(c_f, (240,50))
+    screen.blit(d_g_a, (280,50))
+    screen.blit(e_b, (320,50))
 
     # flip() the display to put your work on screen
     pygame.display.flip()
