@@ -6,6 +6,8 @@ import numpy as np
 # pygame setup
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
+scale = 1.5
+surface = pygame.Surface((1280/scale, 720/scale))
 clock = pygame.time.Clock()
 
 pygame.mixer.init()
@@ -21,7 +23,9 @@ e_b = pygame.image.load("e_b.png").convert_alpha()
 black_key = pygame.image.load("black_key.png").convert_alpha()
 
 class Key:
-    def __init__(self, note):
+    def __init__(self, note, texture, pos):
+        self.texture = texture
+        self.pos = pos
         # freq = 65.41 * 2**(note/12)
         freq = 65.41 * 4 * 2**(note/12)
         max = 2**15 - 1
@@ -39,8 +43,46 @@ class Key:
             self.sound.set_volume(1)
         else:
             self.sound.set_volume(0)
+    def draw(self):
+        surface.blit(self.texture, self.pos)
 
-piano_keys = [Key(i) for i in range(34)]
+piano_keys = [
+    Key(0,c_f, (0,50)),
+    Key(1,black_key, (30,50)),
+    Key(2,d_g_a, (40,50)),
+    Key(3,black_key, (70,50)),
+    Key(4,e_b, (80,50)),
+    Key(5,c_f, (120,50)),
+    Key(6,black_key, (150,50)),
+    Key(7,d_g_a, (160,50)),
+    Key(8,black_key, (190,50)),
+    Key(9,d_g_a, (200,50)),
+    Key(10,black_key, (230,50)),
+    Key(11,e_b, (240,50)),
+    Key(12,c_f, (280,50)),
+    Key(13,black_key, (310,50)),
+    Key(14,d_g_a, (320,50)),
+    Key(15,black_key, (350,50)),
+    Key(16,e_b, (360,50)),
+
+    Key(17,c_f, (400,50)),
+    Key(18,black_key, (430,50)),
+    Key(19,d_g_a, (440,50)),
+    Key(20,black_key, (470,50)),
+    Key(21,d_g_a, (480,50)),
+    Key(22,black_key, (510,50)),
+    Key(23,e_b, (520,50)),
+    Key(24,c_f, (560,50)),
+    Key(25,black_key, (590,50)),
+    Key(26,d_g_a, (600,50)),
+    Key(27,black_key, (630,50)),
+    Key(28,e_b, (640,50)),
+    Key(29,c_f, (680,50)),
+    Key(30,black_key, (710,50)),
+    Key(31,d_g_a, (720,50)),
+    Key(32,black_key, (750,50)),
+    Key(33,d_g_a, (760,50)),
+]
 
 while running:
     # poll for events
@@ -50,7 +92,7 @@ while running:
             running = False
 
     # fill the screen with a color to wipe away anything from last frame
-    screen.fill("purple")
+    surface.fill("purple")
 
     # RENDER YOUR GAME HERE
     keys = pygame.key.get_pressed()
@@ -83,23 +125,15 @@ while running:
     piano_keys[26].play(keys[pygame.K_y]) # d note
     piano_keys[27].play(keys[pygame.K_7]) # d sharp
     piano_keys[28].play(keys[pygame.K_u]) # e note
-    piano_keys[29].play(keys[pygame.K_i]) # f note
-    piano_keys[30].play(keys[pygame.K_9]) # f sharp
-    piano_keys[31].play(keys[pygame.K_o]) # g note
-    piano_keys[32].play(keys[pygame.K_0]) # g sharp
-    piano_keys[33].play(keys[pygame.K_p]) # a note
+    # piano_keys[29].play(keys[pygame.K_i]) # f note
+    # piano_keys[30].play(keys[pygame.K_9]) # f sharp
+    # piano_keys[31].play(keys[pygame.K_o]) # g note
+    # piano_keys[32].play(keys[pygame.K_0]) # g sharp
+    # piano_keys[33].play(keys[pygame.K_p]) # a note
 
-    screen.blit(c_f, (0,50))
-    screen.blit(d_g_a, (40,50))
-    screen.blit(e_b, (80,50))
-    screen.blit(black_key, (30,50))
-    screen.blit(c_f, (120,50))
-    screen.blit(d_g_a, (40,50))
-    screen.blit(d_g_a, (160, 50))
-    screen.blit(e_b, (200,50))
-    screen.blit(c_f, (240,50))
-    screen.blit(d_g_a, (280,50))
-    screen.blit(e_b, (320,50))
+    for key in piano_keys:
+        key.draw()
+    pygame.transform.scale(surface,(1280, 720), screen)
 
     # flip() the display to put your work on screen
     pygame.display.flip()
