@@ -26,6 +26,7 @@ class Key:
     def __init__(self, note, texture, pos):
         self.texture = texture
         self.pos = pos
+        self.black = texture == black_key
         # freq = 65.41 * 2**(note/12)
         freq = 65.41 * 4 * 2**(note/12)
         max = 2**15 - 1
@@ -34,17 +35,26 @@ class Key:
         self.sound = pygame.sndarray.make_sound(buf)
         buf = pygame.sndarray.samples(self.sound)
         volume = 0.25 * max * 65/freq
-        buf[:, 0] = (volume * np.sin(2 * np.pi * freq * np.arange(size) / sample_rate)).astype(np.int16)
-        buf[:, 1] =  (volume * np.sin(2 * np.pi * freq * np.arange(size) / sample_rate)).astype(np.int16)
+        wave = np.sin(2 * np.pi * freq * np.arange(size) / sample_rate) 
+        for i in range(5):
+            k = i * 2 + 3
+            wave += np.sin(2 * np.pi * k* freq * np.arange(size) / sample_rate) / k
+
+        buf[:, 0] = (volume * wave).astype(np.int16)
+        buf[:, 1] =  (volume * wave).astype(np.int16)
         self.sound.set_volume(0)
         self.sound.play(loops = -1)
     def play(self, play):
         if play:
             self.sound.set_volume(1)
         else:
-            self.sound.set_volume(0)
+            self.sound.set_volume(max(0 ,self.sound.get_volume() - 0.01))
     def draw(self):
-        surface.blit(self.texture, self.pos)
+        if self.sound.get_volume() < 1:
+            surface.blit(self.texture, self.pos)
+        else:
+            surface.blit(self.texture, (self.pos[0], self.pos[1] + 10))
+
 
 piano_keys = [
     Key(0,c_f, (0,50)),
@@ -125,14 +135,18 @@ while running:
     piano_keys[26].play(keys[pygame.K_y]) # d note
     piano_keys[27].play(keys[pygame.K_7]) # d sharp
     piano_keys[28].play(keys[pygame.K_u]) # e note
-    # piano_keys[29].play(keys[pygame.K_i]) # f note
-    # piano_keys[30].play(keys[pygame.K_9]) # f sharp
-    # piano_keys[31].play(keys[pygame.K_o]) # g note
-    # piano_keys[32].play(keys[pygame.K_0]) # g sharp
-    # piano_keys[33].play(keys[pygame.K_p]) # a note
+    piano_keys[29].play(keys[pygame.K_i]) # f note
+    piano_keys[30].play(keys[pygame.K_9]) # f sharp
+    piano_keys[31].play(keys[pygame.K_o]) # g note
+    piano_keys[32].play(keys[pygame.K_0]) # g sharp
+    piano_keys[33].play(keys[pygame.K_p]) # a note
 
     for key in piano_keys:
-        key.draw()
+        if not key.black:
+            key.draw()
+    for key in piano_keys:
+        if key.black:
+            key.draw()
     pygame.transform.scale(surface,(1280, 720), screen)
 
     # flip() the display to put your work on screen
