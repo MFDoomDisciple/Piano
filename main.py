@@ -5,9 +5,9 @@ from array import array
 import numpy as np
 # pygame setup
 pygame.init()
-screen = pygame.display.set_mode((1280, 720))
+screen = pygame.display.set_mode((1250, 720), pygame.RESIZABLE)
 scale = 1.5
-surface = pygame.Surface((1280/scale, 720/scale))
+surface = pygame.Surface((1250/scale, 720/scale))
 clock = pygame.time.Clock()
 
 pygame.mixer.init()
@@ -26,11 +26,12 @@ pygame.font.init()
 font = pygame.font.SysFont(None, 35)
 
 class Key:
-    def __init__(self, note, texture, pos, key):
+    def __init__(self, note, texture, pos, key_char, key_code):
         self.texture = texture
         self.pos = pos
         self.black = texture == black_key
-        self.text_surface = font.render(key, True, (255, 255, 255) if self.black else (0,0,0)) # White text
+        self.key_code = key_code
+        self.text_surface = font.render(key_char, True, (255, 255, 255) if self.black else (0,0,0)) # White text
         # freq = 65.41 * 2**(note/12)
         freq = 65.41 * 4 * 2**(note/12)
         max = 2**15 - 1
@@ -48,55 +49,57 @@ class Key:
         buf[:, 1] =  (volume * wave).astype(np.int16)
         self.sound.set_volume(0)
         self.sound.play(loops = -1)
-    def play(self, play):
-        if play:
+    def play(self, keys):
+        if keys[self.key_code]:
             self.sound.set_volume(1)
-        else:
+        elif keys[pygame.K_SPACE]:
             self.sound.set_volume(max(0 ,self.sound.get_volume() - 0.01))
+        else:
+            self.sound.set_volume(0)
     def draw(self):
         dy = 0 if self.sound.get_volume() < 1 else 10
         surface.blit(self.texture, (self.pos[0], self.pos[1] + dy))
         surface.blit(self.text_surface, (self.pos[0] + (self.texture.get_width() - self.text_surface.get_width()) / 2, self.pos[1] + self.texture.get_height() - 35 + dy))
 
-
+y = 150
 piano_keys = [
-    Key(0,c_f, (0,50), "Z"),
-    Key(1,black_key, (30,50), "S"),
-    Key(2,d_g_a, (40,50), "X"),
-    Key(3,black_key, (70,50), "D"),
-    Key(4,e_b, (80,50), "C"),
-    Key(5,c_f, (120,50), "V"),
-    Key(6,black_key, (150,50), "G"),
-    Key(7,d_g_a, (160,50), "B"),
-    Key(8,black_key, (190,50), "H"),
-    Key(9,d_g_a, (200,50), "N"),
-    Key(10,black_key, (230,50), "J"),
-    Key(11,e_b, (240,50), "M"),
-    Key(12,c_f, (280,50), ","),
-    Key(13,black_key, (310,50), "L"),
-    Key(14,d_g_a, (320,50), "."),
-    Key(15,black_key, (350,50), ";"),
-    Key(16,e_b, (360,50), "/"),
+    Key(0,c_f, (0,y), "Z", pygame.K_z),
+    Key(1,black_key, (30,y), "S", pygame.K_s),
+    Key(2,d_g_a, (40,y), "X", pygame.K_x),
+    Key(3,black_key, (70,y), "D", pygame.K_d),
+    Key(4,e_b, (80,y), "C", pygame.K_c),
+    Key(5,c_f, (120,y), "V", pygame.K_v),
+    Key(6,black_key, (150,y), "G", pygame.K_g),
+    Key(7,d_g_a, (160,y), "B", pygame.K_b),
+    Key(8,black_key, (190,y), "H", pygame.K_h),
+    Key(9,d_g_a, (200,y), "N", pygame.K_n),
+    Key(10,black_key, (230,y), "J", pygame.K_j),
+    Key(11,e_b, (240,y), "M", pygame.K_m),
+    Key(12,c_f, (280,y), ",", pygame.K_COMMA),
+    Key(13,black_key, (310,y), "L", pygame.K_l),
+    Key(14,d_g_a, (320,y), ".", pygame.K_PERIOD),
+    Key(15,black_key, (350,y), ";", pygame.K_SEMICOLON),
+    Key(16,e_b, (360,y), "/", pygame.K_SLASH),
 
-    Key(17,c_f, (400,50), "Q"),
-    Key(18,black_key, (430,50), "2"),
-    Key(19,d_g_a, (440,50), "W"),
-    Key(20,black_key, (470,50), "3"),
-    Key(21,d_g_a, (480,50), "E"),
-    Key(22,black_key, (510,50), "4"),
-    Key(23,e_b, (520,50), "R"),
-    Key(24,c_f, (560,50), "T"),
-    Key(25,black_key, (590,50), "6"),
-    Key(26,d_g_a, (600,50), "Y"),
-    Key(27,black_key, (630,50), "7"),
-    Key(28,e_b, (640,50), "U"),
-    Key(29,c_f, (680,50), "I"),
-    Key(30,black_key, (710,50), "9"),
-    Key(31,d_g_a, (720,50), "O"),
-    Key(32,black_key, (750,50), "0"),
-    Key(33,d_g_a, (760,50), "P"),
-    Key(34,black_key, (790,50), "-"),
-    Key(35,e_b, (800,50), "["),
+    Key(17,c_f, (400,y), "Q", pygame.K_q),
+    Key(18,black_key, (430,y), "2", pygame.K_2),
+    Key(19,d_g_a, (440,y), "W", pygame.K_w),
+    Key(20,black_key, (470,y), "3", pygame.K_3),
+    Key(21,d_g_a, (480,y), "E", pygame.K_e),
+    Key(22,black_key, (510,y), "4", pygame.K_4),
+    Key(23,e_b, (520,y), "R", pygame.K_r),
+    Key(24,c_f, (560,y), "T", pygame.K_t),
+    Key(25,black_key, (590,y), "6", pygame.K_6),
+    Key(26,d_g_a, (600,y), "Y", pygame.K_y),
+    Key(27,black_key, (630,y), "7", pygame.K_7),
+    Key(28,e_b, (640,y), "U", pygame.K_u),
+    Key(29,c_f, (680,y), "I", pygame.K_i),
+    Key(30,black_key, (710,y), "9", pygame.K_9),
+    Key(31,d_g_a, (720,y), "O", pygame.K_o),
+    Key(32,black_key, (750,y), "0", pygame.K_0),
+    Key(33,d_g_a, (760,y), "P", pygame.K_p),
+    Key(34,black_key, (790,y), "-", pygame.K_MINUS),
+    Key(35,e_b, (800,y), "[", pygame.K_LEFTBRACKET),
 ]
 
 while running:
@@ -111,43 +114,8 @@ while running:
 
     # RENDER YOUR GAME HERE
     keys = pygame.key.get_pressed()
-    piano_keys[0].play(keys[pygame.K_z]) # c note
-    piano_keys[1].play(keys[pygame.K_s]) # c sharp
-    piano_keys[2].play(keys[pygame.K_x]) # d note
-    piano_keys[3].play(keys[pygame.K_d]) # d sharp
-    piano_keys[4].play(keys[pygame.K_c]) # e note
-    piano_keys[5].play(keys[pygame.K_v]) # f note
-    piano_keys[6].play(keys[pygame.K_g]) # f sharp
-    piano_keys[7].play(keys[pygame.K_b]) # g note
-    piano_keys[8].play(keys[pygame.K_h]) # g sharp
-    piano_keys[9].play(keys[pygame.K_n]) # a note
-    piano_keys[10].play(keys[pygame.K_j]) # a sharp
-    piano_keys[11].play(keys[pygame.K_m]) # b note
-    piano_keys[12].play(keys[pygame.K_COMMA]) # c note
-    piano_keys[13].play(keys[pygame.K_l]) # c sharp
-    piano_keys[14].play(keys[pygame.K_PERIOD]) # d note
-    piano_keys[15].play(keys[pygame.K_SEMICOLON]) # d sharp
-    piano_keys[16].play(keys[pygame.K_SLASH]) # e note
-
-    piano_keys[17].play(keys[pygame.K_q]) # f note
-    piano_keys[18].play(keys[pygame.K_2]) # f sharp
-    piano_keys[19].play(keys[pygame.K_w]) # g note
-    piano_keys[20].play(keys[pygame.K_3]) # g sharp
-    piano_keys[21].play(keys[pygame.K_e]) # a note
-    piano_keys[22].play(keys[pygame.K_4]) # a sharp
-    piano_keys[23].play(keys[pygame.K_r]) # b note
-    piano_keys[24].play(keys[pygame.K_t]) # c note
-    piano_keys[25].play(keys[pygame.K_6]) # c sharp
-    piano_keys[26].play(keys[pygame.K_y]) # d note
-    piano_keys[27].play(keys[pygame.K_7]) # d sharp
-    piano_keys[28].play(keys[pygame.K_u]) # e note
-    piano_keys[29].play(keys[pygame.K_i]) # f note
-    piano_keys[30].play(keys[pygame.K_9]) # f sharp
-    piano_keys[31].play(keys[pygame.K_o]) # g note
-    piano_keys[32].play(keys[pygame.K_0]) # g sharp
-    piano_keys[33].play(keys[pygame.K_p]) # a note
-    piano_keys[34].play(keys[pygame.K_MINUS]) # a sharp
-    piano_keys[35].play(keys[pygame.K_LEFTBRACKET]) # b note
+    for key in piano_keys:
+        key.play(keys)
 
     for key in piano_keys:
         if not key.black:
@@ -155,7 +123,7 @@ while running:
     for key in piano_keys:
         if key.black:
             key.draw()
-    pygame.transform.scale(surface,(1280, 720), screen)
+    pygame.transform.scale(surface,screen.get_size(), screen)
 
     # flip() the display to put your work on screen
     pygame.display.flip()
